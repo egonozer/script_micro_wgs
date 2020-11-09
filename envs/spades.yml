@@ -1,0 +1,8 @@
+name: smw_spades
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - spades=3.14.1

@@ -1,0 +1,22 @@
+name: script_micro_wgs
+channels:
+  - bioconda
+  - conda-forge
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - bcftools=1.11
+  - blast=2.10.1
+  - bwa=0.7.17
+  - fastqc=0.11.9
+  - git=2.29.0
+  - gnuplot=5.2.7
+  - kraken=1.1.1
+  - mummer=3.23
+  - prokka=1.14.6
+  - samtools=1.11
+  - snakemake=5.26.1
+  - snippy=4.6.0
+  - spades=3.14.1
+  - trimmomatic=0.39
+prefix: /home/hauserlab/anaconda3/envs/script_micro_wgs

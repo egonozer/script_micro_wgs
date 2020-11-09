@@ -1,0 +1,8 @@
+name: smw_perl
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - perl=5.26.2

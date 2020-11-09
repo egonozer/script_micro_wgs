@@ -1,0 +1,28 @@
+## Full path to file containing the sample IDs and paths to read files
+samples: "samples.tsv"
+
+## Full path to output directory 
+outdir: "/projects/b1042/OzerLab/script_micro_wgs"
+
+## Reference genome files
+ref:
+    gbk: "ref/PAO1.gbk"
+    phix: "ref/phiX.fasta"
+    
+## Core genome files
+core:
+    seq: "ref/PA_core.fasta"
+    bed: "ref/PA_core.bed"
+
+## ClustAGE accessory genome files
+clustage:
+    ages: "ref/PA_AGEs.fasta"
+    subelems: "ref/PA_subelements.txt"
+
+## Kraken database
+krakendb: "/home/eoz639/Applications/kraken-1.0/minikraken_20171019_8GB"
+
+## mlst profiles and sequences
+mlst:
+    profiles: "scripts/mlst_profiler/PA/PA_MLST_profiles.txt"
+    sequences: "scripts/mlst_profiler/PA/PA_MLST_sequences.txt"

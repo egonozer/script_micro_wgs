@@ -1,0 +1,7 @@
+gapA	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/gapA.fas
+infB	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/infB.fas
+mdh	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/mdh.fas
+pgi	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/pgi.fas
+phoE	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/phoE.fas
+rpoB	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/rpoB.fas
+tonB	/home/hauserlab/Scripts/mlst_profiler/KP_pasteur/tonB.fas

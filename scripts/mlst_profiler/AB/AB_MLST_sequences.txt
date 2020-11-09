@@ -1,0 +1,7 @@
+cpn60	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_cpn60.fas
+fusA	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_fusA.fas
+gltA	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_gltA.fas
+pyrG	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_pyrG.fas
+recA	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_recA.fas
+rplB	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_rplB.fas
+rpoB	/home/hauserlab/Scripts/mlst_profiler/AB_pasteur/AB_rpoB.fas

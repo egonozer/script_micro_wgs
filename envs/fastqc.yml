@@ -1,0 +1,8 @@
+name: smw_fastqc
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - fastqc=0.11.9

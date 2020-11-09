@@ -1,0 +1,11 @@
+name: smw_clustage
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - blast=2.10.1
+  - bwa=0.7.17
+  - gnuplot=5.2.7
+  - perl=5.26.2

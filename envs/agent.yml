@@ -1,0 +1,9 @@
+name: smw_agent
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - mummer=3.23
+  - perl=5.26.2

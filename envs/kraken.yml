@@ -1,0 +1,8 @@
+name: smw_kraken
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - kraken=1.1.1

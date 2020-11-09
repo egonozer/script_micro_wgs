@@ -1,0 +1,12 @@
+name: smw_qc_filter
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - bcftools=1.11
+  - blast=2.10.1
+  - bwa=0.7.17
+  - perl=5.26.2
+  - samtools=1.11

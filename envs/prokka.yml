@@ -1,0 +1,8 @@
+name: smw_prokka
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - prokka=1.14.6

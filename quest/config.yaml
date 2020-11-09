@@ -1,0 +1,6 @@
+## Cluster options
+default-resources: [account="b1042", partition="genomics", email="e-ozer@northwestern.edu", time="2:00:00"]
+
+jobs: 500
+cluster: "sbatch -p {resources.partition} -A {resources.account} -N 1 -t {resources.time} --ntasks-per-node={threads} --mail-type=FAIL --mail-user={resources.email} "
+#use-conda: true

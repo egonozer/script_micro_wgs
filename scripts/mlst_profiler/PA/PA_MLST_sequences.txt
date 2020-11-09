@@ -1,0 +1,7 @@
+acsA	PA_acsA.fas
+aroE	PA_aroE.fas
+guaA	PA_guaA.fas
+mutL	PA_mutL.fas
+nuoD	PA_nuoD.fas
+ppsA	PA_ppsA.fas
+trpE	PA_trpE.fas

@@ -1,0 +1,9 @@
+name: smw_mlst
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - blast=2.10.1
+  - perl=5.26.2

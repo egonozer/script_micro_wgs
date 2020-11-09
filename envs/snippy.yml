@@ -1,0 +1,8 @@
+name: smw_snippy
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - snippy=4.6.0
