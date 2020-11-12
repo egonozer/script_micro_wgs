@@ -16,7 +16,7 @@ def get_fq2(wildcards):
 outdir = config["outdir"]
 
 ## These are the steps that do not need to be run as cluster jobs
-localrules: all, mlst, clustage_input
+localrules: all, clustage_input
 
 rule all:
     input:
@@ -24,7 +24,10 @@ rule all:
         expand("{outdir}/results/checkpoints/{sample}.kraken", outdir=config["outdir"], sample=samples['sample']),
         expand("{outdir}/results/checkpoints/{sample}.snippy", outdir=config["outdir"], sample=samples['sample']),
         expand("{outdir}/results/checkpoints/{sample}.mlst", outdir=config["outdir"], sample=samples['sample']),
-        expand("{outdir}/results/checkpoints/all.clustage", outdir=config["outdir"])
+        expand("{outdir}/results/checkpoints/all.clustage", outdir=config["outdir"]),
+        expand("{outdir}/results/summary/snippy.processed_nt_variants.tsv", outdir=config["outdir"]),
+        expand("{outdir}/results/summary/snippy.processed_aa_variants.tsv", outdir=config["outdir"]),
+        expand("{outdir}/results/summary/PA_groups.txt", outdir=config["outdir"])
 
 rule fastqc:
     input:
@@ -135,6 +138,18 @@ rule qc_filter:
 #         "perl scripts/vecscreen.pl ...; "
 #         "touch {output.done}"
 
+rule pa_group:
+    input: 
+        qcfilt_done=expand("{outdir}/results/checkpoints/{sample}.qc_filter", outdir=config['outdir'], sample=samples['sample'])
+    output:
+        group="{outdir}/results/summary/PA_groups.txt"
+    params:
+        list=expand("{outdir}/results/spades_filtered/{sample}.filtered_sequences.fasta", outdir=config['outdir'], sample=samples['sample'])
+    threads: 2
+    shell:
+        'perl scripts/PA_group_profiler.pl {params.list} | '
+        'perl -pe "s/.filtered_sequences//" > {output.group} '
+
 rule mlst:
     input:
         #qc_done="{outdir}/results/checkpoints/{sample}.qc_filter",
@@ -146,6 +161,7 @@ rule mlst:
         profiles=config["mlst"]["profiles"],
         sequences=config["mlst"]["sequences"]
     log: "{outdir}/results/mlst/{sample}.log.txt"
+    threads: 2
     conda: "envs/mlst.yml"
     shell:
         "perl scripts/mlst_profiler/mlst_profiler.pl "
@@ -260,4 +276,15 @@ rule snippy:
         "2>&1 > {log}; "
         "perl scripts/snippy_process.pl -s {output.snps} -b {params.bed} 2>>{log}; "
         "touch {output.done}"
+
+rule snippy_compile:
+    input:
+        snippy_done=expand("{outdir}/results/checkpoints/{sample}.snippy", outdir=config['outdir'], sample=samples['sample'])
+    output:
+        nt="{outdir}/results/summary/snippy.processed_nt_variants.tsv",
+        aa="{outdir}/results/summary/snippy.processed_aa_variants.tsv"
+    threads: 12
+    shell:
+        'perl scripts/snippy_compile.pl -o {outdir}/results/summary/snippy {outdir}/results/snippy'
+
 
