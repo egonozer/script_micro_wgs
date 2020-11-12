@@ -1,8 +1,6 @@
-#SCRIPT Microbiology Whole-Genome Sequencing Pipeline
+# SCRIPT Microbiology Whole-Genome Sequencing Pipeline
 
-
-
-##Installation  
+## Installation  
 
 If you don't already have Miniconda or Anaconda installed, do so:
 [https://docs.conda.io/en/latest/miniconda.html](https://docs.conda.io/en/latest/miniconda.html)
@@ -45,7 +43,7 @@ If running on Quest, also change the quest/config.yaml file:
 1. Change the `default-resources` to the account, partition, and email address you'd like to use (please don't use my email address!)
 
 
-##Analysis
+## Analysis
 
 **1.** Activate the conda environment
 
