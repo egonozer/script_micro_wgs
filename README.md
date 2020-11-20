@@ -20,7 +20,7 @@ conda activate script_micro_wgs
 Download the directory and files from github:
 
 ```
-git clone https://xyz/script_micro_wgs.git
+git clone https://github.com/egonozer/script_micro_wgs
 cd script_micro_wgs
 gunzip ref/PA_subelements.txt
 ```
