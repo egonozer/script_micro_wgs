@@ -183,7 +183,7 @@ rule qc_filter:
         done="{outdir}/results/checkpoints/{sample}.qc_filter"
     params:
         name="{outdir}/results/spades_filtered/{sample}",
-        shortname="{outdir}/results/final_assemblies/{sample}.fasta",
+        intermediate="{outdir}/results/spades_filtered/{sample}.filtered_sequences.fasta",
         phix=config["ref"]["phix"]
     log: "{outdir}/results/spades_filtered/{sample}.log.txt"
     threads: 4
@@ -197,7 +197,7 @@ rule qc_filter:
         "-m 2 -l 200 -t {threads} -p {params.phix} -x 98 -o {params.name} "
         "> {output.stats} 2> {log}; "
         "mkdir -p {outdir}/results/final_assemblies; "
-        "mv {params.name} {params.shortname}; "
+        "mv {params.intermediate} {output.filtered}; "
         "touch {output.done}"
 
 rule quast:
@@ -227,21 +227,20 @@ rule pa_group:
         done="{outdir}/results/checkpoints/all.pagroup",
         group="{outdir}/results/summary/PA_groups.txt"
     params:
-        list=expand("{outdir}/results/spades_filtered/{sample}.filtered_sequences.fasta", outdir=config['outdir'], sample=samples['sample'])
+        list=expand("{outdir}/results/final_assemblies/{sample}.fasta", outdir=config['outdir'], sample=samples['sample'])
     threads: 2
     resources:
         jobname="smk-pa_group",
         outlog="logs/pa_group/all-%j.out"
     conda: "envs/perl.yml"
     shell:
-        'perl scripts/PA_group_profiler.pl {params.list} | '
-        'perl -pe "s/.filtered_sequences//" > {output.group}; '
+        'perl scripts/PA_group_profiler.pl {params.list} > {output.group}; '
         'touch {output.done}'
 
 rule mlst:
     input:
         #qc_done="{outdir}/results/checkpoints/{sample}.qc_filter",
-        assembly="{outdir}/results/spades_filtered/{sample}.filtered_sequences.fasta"
+        assembly="{outdir}/results/final_assemblies/{sample}.fasta"
     output:
         results="{outdir}/results/mlst/{sample}_mlst.txt",
         done="{outdir}/results/checkpoints/{sample}.mlst"
@@ -265,7 +264,7 @@ rule mlst:
 rule prokka:
     input:
         #qc_done="{outdir}/results/checkpoints/{sample}.qc_filter",
-        assembly="{outdir}/results/spades_filtered/{sample}.filtered_sequences.fasta"
+        assembly="{outdir}/results/final_assemblies/{sample}.fasta"
     output:
         gbk="{outdir}/results/prokka/{sample}/{sample}.gbk",
         done="{outdir}/results/checkpoints/{sample}.prokka"
@@ -425,9 +424,3 @@ rule mqc:
         "perl scripts/mqc_agent.pl {params.a_dir} > {output.a_mqc}; "
         "multiqc -f -c multiqc_config.yaml -o {params.results_dir} {params.results_dir}; "
         "touch {output.done}"
-
-
-
-
-
-

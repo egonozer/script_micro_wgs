@@ -1,6 +1,10 @@
 
 # SCRIPT Microbiology Whole-Genome Sequencing Pipeline
 
+Currently for analysis of Pseudomonas aeruginosa genomes only.
+
+![Rule Plot](graphviz.svg)
+
 ## Prerequisites
 
 **1.**  [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) or [Mamba (recommended)](https://mamba.readthedocs.io/en/latest/installation.html)
