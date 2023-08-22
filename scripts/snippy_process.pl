@@ -20,12 +20,15 @@ Required:
   
 Optional:
   -b    bed file of targets to restrict output to (i.e. core genome)
+  -d    debug mode
 
 ";
 
+
+
 use Getopt::Std;
-our ($opt_s, $opt_b);
-getopts('s:b:');
+our ($opt_s, $opt_b, $opt_d);
+getopts('s:b:d');
 
 die $usage unless $opt_s;
 
@@ -50,25 +53,26 @@ if ($bed){
 }
 
 open (my $in, "<$file") or die "ERROR: Can't open $file:\n";
-open (my $nout, ">$path/snps.processed_nt_variants.tsv");
+my ($nfile, $afile) = ("$path/snps.processed_nt_variants.tsv", "$path/snps.processed_aa_variants.tsv");
+($nfile, $afile) = ("snps.processed_nt_variants.tsv", "snps.processed_aa_variants.tsv") if $opt_d;
+open (my $nout, ">$nfile");
 print $nout "CHROM\tPOS\tREF\tALT\n";
-open (my $aout, ">$path/snps.processed_aa_variants.tsv");
+open (my $aout, ">$afile");
 print $aout "CHROM\tLOCUS_ID\tPOS\tREF\tALT\n";
 while (my $line = <$in>){
     chomp $line;
     my @tmp = split("\t", $line);
-    my ($chrom, $pos, $type, $ref, $alt, $ftype, $effect, $loc) = @tmp[0,1,2,3,4,6,10,11];
+    my ($chrom, $pos, $type, $ref, $alt, $ftype, $effect, $loc, $gene, $prod) = @tmp[0,1,2,3,4,6,10,11,12,13];
     if ($bed){
         next unless $bedhash{$chrom}{$pos};
     }
-    next unless $type =~ m/snp|complex/;
-    if ($type eq "snp"){
-        print $nout "$chrom\t$pos\t$ref\t$alt\n";
-    } else { ## complex
-        ## trim down unequal length sequences before pulling out variants
-        my $maxlength = (sort{$a <=> $b}(length($ref), length($alt)))[0];
-        $ref = substr($ref, 0, $maxlength);
-        $alt = substr($alt, 0, $maxlength);
+    if ($type =~ m/snp|complex|mnp/){
+        ## for unequal length ref/alt that are complex variants that include indels, we'll just check the first base and count it as a SNP if it's different. 
+        ## Everyting else in the uneven complex variants is just too difficult to reconcile.
+        if (length($ref) != length($alt)){
+            $ref = substr($ref, 0, 1);
+            $alt = substr($alt, 0, 1);
+        }
         ## get the variant positions
         my $mask = $ref ^ $alt;
         while ($mask =~ m/[^\0]/g){
@@ -80,13 +84,37 @@ while (my $line = <$in>){
         }
     }
     ## evaluate amino acid changes
+    ## "X" = frameshift or start codon loss
     next unless $effect;
     (my $var) = $effect =~ m/p\.(\D+\d+\D+)/;
+    next unless $var;
     my ($ref_a, $pos_a, $alt_a) = split(/(\d+)/, $var) if $var;
-    if ($effect =~ m/missense_variant/){
+    next unless ($ref_a ne $alt_a);
+    ## Will ignore insertions for this analysis
+    if (substr($alt_a,0,1) ne uc(substr($alt_a,0,1))){
+        if ($alt_a eq "fs"){ #frameshift
+            my $out_r = oneletter($ref_a);
+            print $aout "$chrom\t$loc\t$pos_a\t$out_r\tX\n";
+        }
+        ## otherwise will skip "ins", "del", and "dup"
+    } else {
+        if ($alt_a eq "?"){ ## start codon loss
+            my $out_r = oneletter($ref_a);
+            print $aout "$chrom\t$loc\t$pos_a\t$out_r\tX\n";
+        }
+        if ($alt_a eq "*") { ## premature stop codon
+            my $out_r = oneletter(substr($ref_a,0,3));
+            print $aout "$chrom\t$loc\t$pos_a\t$out_r\t*\n";
+        }
+        if ($alt_a =~ m/ext\*\?$/){ ## stop lost
+            $alt_a =~ s/ext\*\?$//; #remove the 'ext*?'. Next if statement will handle the amino acid changes. 
+        }
         if (length($ref_a) == length($alt_a)){
             if (length($ref_a) == 3){
                 my ($out_r, $out_a) = (oneletter($ref_a), oneletter($alt_a));
+                if ($out_r eq "X" or $out_a eq "X"){
+                    die "ERROR: undefined amino acid in snippy output: $line\n"; ## Haven't seen this yet.
+                }
                 print $aout "$chrom\t$loc\t$pos_a\t$out_r\t$out_a\n";
             } else {
                 my @rarray = ($ref_a =~ m/(.{3})/g);
@@ -94,30 +122,16 @@ while (my $line = <$in>){
                 for my $i (0 .. $#rarray){
                     next if $rarray[$i] eq $aarray[$i];
                     my $opos = $pos_a + $i;
-                    next unless $bedhash{$chrom}{$opos};
                     my ($out_r, $out_a) = (oneletter($rarray[$i]), oneletter($aarray[$i]));
+                    if ($out_r eq "X" or $out_a eq "X"){
+                        die "ERROR: undefined amino acid in snippy output: $line\n"; ## Haven't seen this yet.
+                    }
                     print $aout "$chrom\t$loc\t$opos\t$out_r\t$out_a\n";
                 }
             }
-        } else {
-            ### I don't know how best to deal with uneven complex variants and they seem relatively rare, so will ignore for now. Sorry. 
         }
     }
-    
-    next unless $type eq "snp"; ## for now. Need some examples to deal with stop codons in complex
-    if ($effect =~ m/stop_gained/){
-        (my $var) = $effect =~ m/p.(\D+\d+\*)/;
-        my ($ref_a, $pos_a, $alt_a) = split(/(\d+)/, $var) if $var;
-        my $out_r = oneletter($ref_a);
-        print $aout "$chrom\t$loc\t$pos_a\t$out_r\t$alt_a\n";
-    }
-    if ($effect =~ m/stop_lost/){
-        $alt_a = substr($alt_a, 0, 3); ## stop_lost always annotated with tailing "ext*?" for splice_region_variant
-        my ($out_r, $out_a) = (oneletter($ref_a), oneletter($alt_a));
-        print $aout "$chrom\t$loc\t$pos_a\t$out_r\t$out_a\n";
-    }
 }
-
 
 sub oneletter {
     my $input = shift;

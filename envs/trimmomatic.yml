@@ -1,8 +1,0 @@
-name: smw_trimmomatic
-channels:
-  - conda-forge
-  - bioconda
-  - conda-forge/label/broken
-  - defaults
-dependencies:
-  - trimmomatic=0.39

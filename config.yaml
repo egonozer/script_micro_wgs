@@ -1,27 +1,33 @@
+
+## CHANGE THESE:
 ## Full path to file containing the sample IDs and paths to read files
-samples: "samples.tsv"
+samples: "/path/to/samples.tsv"
+## Full path to output directory
+outdir: "/path/to/out_dir"
 
-## Full path to output directory 
-outdir: "/projects/b1042/OzerLab/script_micro_wgs"
-
-## Reference genome files
-ref:
-    gbk: "ref/PAO1.gbk"
-    phix: "ref/phiX.fasta"
-    
-## Core genome files
-core:
-    seq: "ref/PA_core.fasta"
-    bed: "ref/PA_core.bed"
-
+## IF YOU ARE ADDING TO A PREVIOUS RUN OF THE PIPELINE, UPDATE THESE WITH THE 
+## CLUSTAGE RESULTS FILES FROM THE PRIOR RUN
 ## ClustAGE accessory genome files
 clustage:
     ages: "ref/PA_AGEs.fasta"
     subelems: "ref/PA_subelements.txt"
 
+## YOU DON'T NEED TO CHANGE THESE UNLESS YOU HAD DOWNLOADED THEM PREVIOUSLY
 ## Kraken database
-krakendb: "/home/eoz639/Applications/kraken-1.0/minikraken_20171019_8GB"
+krakendb: "ref/minikraken_20171019_8GB"
+## fcs-adapter.sif v0.4.0 container file
+fcssif: "scripts/fcs-adaptor.sif"
 
+## YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW
+## Reference genome files
+ref:
+    fa: "ref/PAO1.fasta"
+    gbk: "ref/PAO1.gbk"
+    phix: "ref/phiX.fasta"
+## Core genome files
+core:
+    seq: "ref/PA_core.fasta"
+    bed: "ref/PA_core.bed"
 ## mlst profiles and sequences
 mlst:
     profiles: "scripts/mlst_profiler/PA/PA_MLST_profiles.txt"

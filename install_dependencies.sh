@@ -7,5 +7,5 @@ wget http://ccb.jhu.edu/software/kraken/dl/minikraken_20171019_8GB.tgz
 tar -zxvf minikraken_20171019_8GB.tgz
 mv -r minikraken_20171019_8GB ref/
 
-#wget -O ref/UniVec https://ftp.ncbi.nlm.nih.gov/pub/UniVec/UniVec
-#makeblastdb -in ref/UniVec -dbtype nucl
+curl https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/releases/0.4.0/fcs-adaptor.sif
+mv fcs-adaptor.sif scripts/

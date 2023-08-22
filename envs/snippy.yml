@@ -6,3 +6,4 @@ channels:
   - defaults
 dependencies:
   - snippy=4.6.0
+  - snpeff=4.3.1t

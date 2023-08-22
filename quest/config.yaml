@@ -1,6 +1,27 @@
 ## Cluster options
-default-resources: [account="b1042", partition="genomics", email="e-ozer@northwestern.edu", time="2:00:00"]
+default-resources:
+  - account="b1042"
+  - partition="genomics"
+  - email="your-email@northwestern.edu"
+  - time="2:00:00"
 
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    -p {resources.partition}
+    -A {resources.account}
+    -N 1
+    -t {resources.time}
+    --ntasks-per-node={threads}
+    --mail-type=FAIL
+    --mail-user={resources.email}
+    --job-name={resources.jobname}
+    --output={resources.outlog}
+
+use-conda: True
 jobs: 500
-cluster: "sbatch -p {resources.partition} -A {resources.account} -N 1 -t {resources.time} --ntasks-per-node={threads} --mail-type=FAIL --mail-user={resources.email} "
-#use-conda: true
+latency-wait: 60
+restart-times: 3
+max-jobs-per-second: 3
+max-status-checks-per-second: 1
+rerun-incomplete: True

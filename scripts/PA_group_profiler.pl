@@ -5,25 +5,33 @@ use warnings;
 use List::Util::XS;
 use List::Util qw/sum/;
 
+$|++;
+
 ## get the full path to the script directory
 use File::Basename;
 use Cwd 'abs_path';
 my $scriptdir = abs_path(dirname(__FILE__));
 
 my $kfile = "$scriptdir/kmers_and_alleles.k21.txt";
+my $fq_cutoff = 5; # 5% 
 
 die "ERROR: Can't locate $kfile. Please make sure the file is in the same directory as $0\n" unless -e $kfile;
 
 my $usage = "
 
-PA_group_profiler.pl <file.fasta(.gz)>
+PA_group_profiler.pl <file.fasta(.gz)> or <file.fastq(.gz)>
 
 Searches for group-defining variants and assigns putative group (A, B, or other) to
-a genome sequence. Fasta files can be gzipped.
+a genome sequence. Can take a single assembly or read file as input. 
+
+Files can be gzipped.
 
 kmer file:
 $kfile
 
+Read percent cutoff: $fq_cutoff
+When given a read file, will use this threshold of bases at every kmer instance to 
+determine the identity.
 
 ";
 
@@ -61,6 +69,25 @@ my $kstring = join("|", @kall);
 
 print "ID\tGroup\t#A_sites\t#B_sites\t#mixed_sites\t#missing_sites\n";
 foreach my $file (@files){
+    ## try to guess filetype
+    my $filetype;
+    my $testin;
+    if ($file =~ m/\.gz$/){
+        open ($testin, "gzip -cd $file | ");
+    } else {
+        open ($testin, "<$file") or die "ERROR: Can't open $file: $!\n";
+    }
+    my $testline = <$testin>;
+    if ($testline =~ m/^>/){
+        $filetype = "fa";
+    } elsif ($testline=~ m/^@/){
+        $filetype = "fq";
+    } else {
+        close ($testin);
+        die "ERROR: Can't detect sequence file format\n";
+    }
+    close ($testin);
+
     my $in;
     if ($file =~ m/\.gz$/){
         open ($in, "gzip -cd $file | ");
@@ -73,16 +100,31 @@ foreach my $file (@files){
         $file =~ s/.f[^.]*$//;
     }
     my $seq;
-    while (my $line = <$in>){
-        if ($line =~ m/^>/){
+    if ($filetype eq "fa"){
+        while (my $line = <$in>){
+            if ($line =~ m/^>/){
+                if ($seq){
+                    $seq .= "N";
+                }
+                next;
+            }
+            $line =~ s/\s//g;
+            $line = uc($line);
+            $seq .= $line;
+        }
+    } else {
+        while (<$in>){
+            chomp (my $l1 = $_);
+            chomp (my $l2 = <$in>);
+            chomp (my $l3 = <$in>);
+            chomp (my $l4 = <$in>);
+            $l2 =~ s/\s//g;
+            $l2 = uc($l2);
             if ($seq){
                 $seq .= "N";
             }
-            next;
+            $seq .= $l2;
         }
-        $line =~ s/\s//g;
-        $line = uc($line);
-        $seq .= $line;
     }
     close ($in);
     #print STDERR "Checking $file for kmers\n";
@@ -118,13 +160,13 @@ foreach my $file (@files){
             if ($sum == 0){
                 $missing++;
                 next;
-            } elsif ($tmp[0] == $sum){
+            } elsif ($tmp[0] >= ($sum * (1 - ($fq_cutoff/100)))){
                 $acount++;
                 next;
-            } elsif ($tmp[1] == $sum){
+            } elsif ($tmp[1] >= ($sum * (1 - ($fq_cutoff/100)))){
                 $bcount++;
                 next;
-            } elsif ($tmp[2] == $sum){
+            } elsif ($tmp[2] >= ($sum * (1 - ($fq_cutoff/100)))){
                 $ocount++;
                 next;
             } else {
@@ -139,13 +181,16 @@ foreach my $file (@files){
     
     my $group = "A";
     $group = "B" if $bcount > $acount;
-    
-    my $mfrac = ($mixed + $missing) / $ptot;
-    my $smaller = (sort{$a <=> $b}($acount, $bcount))[0];
-    my $dfrac = $smaller / ($acount + $bcount);
-    ## Built these heuristics by examining patterns 739 NCBI isolates
-    if ($mfrac > 0.4 or ($mfrac >= 0.1 and $dfrac > 0.1) or ($mfrac < 0.1 and $dfrac > 30)){
-        $group = "?";
+    if (($acount + $bcount) > 0){
+        my $mfrac = ($mixed + $missing) / $ptot;
+        my $smaller = (sort{$a <=> $b}($acount, $bcount))[0];
+        my $dfrac = $smaller / ($acount + $bcount);
+        ## Built these heuristics by examining patterns 739 NCBI isolates
+        if ($mfrac > 0.4 or ($mfrac >= 0.1 and $dfrac > 0.1) or ($mfrac < 0.1 and $dfrac > 0.3)){
+            $group = "?";
+        }
+    } else {
+        $group = "X";
     }
     
     

@@ -1,0 +1,9 @@
+name: smw_quast
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - python=3.6.0
+  - quast=5.2.0

@@ -1,0 +1,9 @@
+name: smw_multiqc
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - multiqc=1.14
+  - perl=5.26.2

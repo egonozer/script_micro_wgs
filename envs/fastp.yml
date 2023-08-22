@@ -1,0 +1,8 @@
+name: smw_fastp
+channels:
+  - conda-forge
+  - bioconda
+  - conda-forge/label/broken
+  - defaults
+dependencies:
+  - fastp=0.23.4
